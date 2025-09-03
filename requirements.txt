@@ -1,0 +1,7 @@
+colorzero==2.0
+gpiozero==2.0.1
+lgpio==0.2.2.0
+pigpio==1.78
+RPi.GPIO==0.7.1
+secure-smtplib==0.1.1
+-e git+https://github.com/doceme/py-spidev.git@cc2d813cd262a4843b004f577753f65f57a8609d#egg=spidev
