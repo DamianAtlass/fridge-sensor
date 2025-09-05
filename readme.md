@@ -26,6 +26,11 @@ pip install -e ./py-spidev
 pip install -r requirements.txt
 ```
 
+```bash
+sudo apt update
+sudo apt install libopenblas-dev
+```
+
 ## ssh into raspbery py:
 on remote machine:
 ```bash
