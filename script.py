@@ -1,5 +1,4 @@
 ##!/usr/bin/python
-from time import sleep, time
 import sys
 from typing import Callable, Any
 import numpy as np
@@ -11,10 +10,19 @@ from gpiozero import Buzzer
 def main():
 
     def readChannel(channel):
+        #formula very inaccurate
         val = spi.xfer2([1, (8 + channel) << 4, 0])
         data = ((val[1] & 3) << 8) + val[2]
         return data
+
+    # read runtime parameters
     SILENCE_BUZZER = "-s" in sys.argv
+
+    if "-o" in sys.argv:
+        n = sys.argv.index("-o")+1
+        OFFSET = float(sys.argv[n])
+    else:
+        OFFSET = 1
 
 
     #setup buzzer
@@ -37,6 +45,7 @@ def main():
         v = (readChannel(0) / 1023.0) * 3.3
         return 16.2537 * v ** 4 - 129.893 * v ** 3 + 382.268 * v ** 2 - 512.611 * v + 301.439
 
+
     def get_distace(n: int = 100, t:int = 0.01) -> float:
         i = 0
         arr = np.zeros(n)
@@ -45,6 +54,7 @@ def main():
             i += 1
             sleep(t)
         return arr.mean()
+
 
     def beep(beeps:int=1, t:int=0.2):
         for i in range(beeps):
@@ -56,7 +66,6 @@ def main():
 
     def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
         time_windows.append(coutner)
-
         time_windows.sort()
         return time_windows.index(coutner)
 
@@ -68,8 +77,9 @@ def main():
     buzzer_off= silencer(buzzer.off, SILENCE_BUZZER)
 
     # calibrate and compensate measuring for errors
-    threshold = get_distace() + 0.7
-    print("Threshold: ", threshold)
+    OFFSET = 1 if OFFSET is None else OFFSET
+    threshold = get_distace() + OFFSET
+    print("Threshold: ", round(threshold, 2), ", Offset:", OFFSET)
 
     time_windows = [5, 10, 15]
     noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy"]
@@ -82,7 +92,7 @@ def main():
         print(" " * 60, "\r", end="")
 
         dist = get_distace()
-        print(f"\rDist: {str(round(dist, 1)).ljust(6)}cm", end="")
+        print(f"\rDist: {str(round(dist, 1)).rjust(5)}cm", end="")
 
         if door_possibly_open:= threshold < dist:
             counter_door_possibly_open += 1
@@ -91,11 +101,12 @@ def main():
 
         alarmlevel = evaluate_counter(counter_door_possibly_open, time_windows.copy())
 
-        print(", Door","  open" if door_possibly_open else "closed", end="")
-        print(f", Alarmlevel on {alarmlevel}/{len(time_windows)} ({noise[alarmlevel]})" , end="")
+        print(", Door","!open!" if door_possibly_open else "closed", end="")
         t_end = time()
         print(", iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
-        print(", counter: ", str(counter_door_possibly_open).ljust(4), end="")
+        print(", counter: ", str(counter_door_possibly_open).ljust(2), end="")
+        print(f", Alarmlevel on {alarmlevel}/{len(time_windows)} ({noise[alarmlevel]})" , end="")
+
 
         if counter_door_possibly_open == time_windows[0]:
             beep(2)
