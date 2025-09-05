@@ -64,15 +64,15 @@ def main():
         print(" " * 60, "\r", end="")
 
         dist = get_distace()
-        print(f"Dist: {str(round(dist, 1)).ljust(6)}cm,", end=" ")
+        print(f"\rDist: {str(round(dist, 1)).ljust(6)}cm", end="")
 
         if door_open:= threshold < dist:
             buzzer_on()
         else:
             buzzer_off()
 
-        print("Door","  open" if door_open else "closed", end=" ")
-        print("Buzzer","on" if buzzer.is_active else "off", "(mute)" if SILENCE_BUZZER else "", end="\r")
+        print(", Door","  open" if door_open else "closed", end="")
+        print(", Buzzer","on" if buzzer.is_active else "off", "(mute)" if SILENCE_BUZZER else "", end="")
         sleep(0.1)
 
 if __name__ == "__main__":
