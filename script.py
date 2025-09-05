@@ -2,7 +2,7 @@
 import threading
 
 import spidev
-from time import sleep
+from time import sleep, time
 from gpiozero import Buzzer
 import sys
 from typing import Callable, Any
@@ -59,7 +59,7 @@ def main():
 
 
     while True:
-
+        t_start = time()
         # clear line
         print(" " * 60, "\r", end="")
 
@@ -73,6 +73,8 @@ def main():
 
         print(", Door","  open" if door_open else "closed", end="")
         print(", Buzzer","on" if buzzer.is_active else "off", "(mute)" if SILENCE_BUZZER else "", end="")
+        t_end = time()
+        print(", iteration time: ", round(t_end - t_start, 2),"s", end="")
         sleep(0.1)
 
 if __name__ == "__main__":
