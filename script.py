@@ -16,13 +16,13 @@ def main():
         return data
 
     # read runtime parameters
-    SILENCE_BUZZER = "-s" in sys.argv
+    silence_buzzer = "-s" in sys.argv
 
     if "-o" in sys.argv:
         n = sys.argv.index("-o")+1
-        OFFSET = float(sys.argv[n])
+        offset = float(sys.argv[n])
     else:
-        OFFSET = 1
+        offset = 0.5
 
 
     #setup buzzer
@@ -70,16 +70,16 @@ def main():
         return time_windows.index(coutner)
 
 
-    print(f"Start script{' silently' if SILENCE_BUZZER else ''}...")
+    print(f"Start script{' silently' if silence_buzzer else ''}...")
 
 
-    buzzer_on = silencer(buzzer.on, SILENCE_BUZZER)
-    buzzer_off= silencer(buzzer.off, SILENCE_BUZZER)
+    buzzer_on = silencer(buzzer.on, silence_buzzer)
+    buzzer_off= silencer(buzzer.off, silence_buzzer)
 
     # calibrate and compensate measuring for errors
-    OFFSET = 1 if OFFSET is None else OFFSET
-    threshold = get_distace() + OFFSET
-    print("Threshold: ", round(threshold, 2), ", Offset:", OFFSET)
+    offset = 1 if offset is None else offset
+    threshold = get_distace() + offset
+    print("Threshold: ", round(threshold, 2), ", Offset:", offset)
 
     time_windows = [5, 10, 15]
     noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy"]
