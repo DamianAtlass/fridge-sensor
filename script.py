@@ -1,13 +1,11 @@
 ##!/usr/bin/python
-import threading
-
-import spidev
 from time import sleep, time
-from gpiozero import Buzzer
 import sys
 from typing import Callable, Any
 import numpy as np
-
+import spidev
+from time import sleep, time
+from gpiozero import Buzzer
 
 
 def main():
@@ -16,8 +14,8 @@ def main():
         val = spi.xfer2([1, (8 + channel) << 4, 0])
         data = ((val[1] & 3) << 8) + val[2]
         return data
+    SILENCE_BUZZER = "-s" in sys.argv
 
-    print("Start script...")
 
     #setup buzzer
     buzzer = Buzzer(13)
@@ -27,7 +25,6 @@ def main():
     spi.open(0, 0)
     spi.max_speed_hz = 1000000
 
-    SILENCE_BUZZER = "-s" in sys.argv
 
     def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
         def wrapper(*args, **kwargs) -> None:
@@ -49,15 +46,35 @@ def main():
             sleep(t)
         return arr.mean()
 
+    def beep(beeps:int=1, t:int=0.2):
+        for i in range(beeps):
+            buzzer_on()
+            sleep(t)
+            buzzer_off()
+            if i!=beeps-1:
+                sleep(t)
+
+    def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
+        time_windows.append(coutner)
+
+        time_windows.sort()
+        return time_windows.index(coutner)
+
+
+    print(f"Start script{' silently' if SILENCE_BUZZER else ''}...")
+
 
     buzzer_on = silencer(buzzer.on, SILENCE_BUZZER)
     buzzer_off= silencer(buzzer.off, SILENCE_BUZZER)
 
     # calibrate and compensate measuring for errors
-    threshold = get_distace() + 1
+    threshold = get_distace() + 0.7
     print("Threshold: ", threshold)
 
-    door_possibly_open_counter = 0
+    time_windows = [5, 10, 15]
+    noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy"]
+
+    counter_door_possibly_open = 0
 
     while True:
         t_start = time()
@@ -68,16 +85,27 @@ def main():
         print(f"\rDist: {str(round(dist, 1)).ljust(6)}cm", end="")
 
         if door_possibly_open:= threshold < dist:
-            buzzer_on()
-            door_possibly_open_counter += 1
+            counter_door_possibly_open += 1
         else:
-            buzzer_off()
-            door_possibly_open_counter = 0
+            counter_door_possibly_open = 0
+
+        alarmlevel = evaluate_counter(counter_door_possibly_open, time_windows.copy())
 
         print(", Door","  open" if door_possibly_open else "closed", end="")
-        print(", Buzzer","on" if buzzer.is_active else "off", "(mute)" if SILENCE_BUZZER else "", end="")
+        print(f", Alarmlevel on {alarmlevel}/{len(time_windows)} ({noise[alarmlevel]})" , end="")
         t_end = time()
-        print(", iteration time: ", round(t_end - t_start, 2),"s", end="")
+        print(", iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
+        print(", counter: ", str(counter_door_possibly_open).ljust(4), end="")
+
+        if counter_door_possibly_open == time_windows[0]:
+            beep(2)
+
+        elif counter_door_possibly_open == time_windows[1]:
+            beep(3)
+
+        elif counter_door_possibly_open > time_windows[2]:
+            beep()
+
         sleep(0.1)
 
 if __name__ == "__main__":
