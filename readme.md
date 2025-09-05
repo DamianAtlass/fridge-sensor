@@ -36,8 +36,13 @@ on Raspberry Pi:
 ```bash
 sudo apt install ssh
 ```
-On remote machine:
+On remote (linux) machine:
 ```bash
 shpass -p Pi_user_pw ssh Pi_user@Pi_ip
 ```
 
+On windows use
+```bash
+ ssh Pi_user@Pi_ip
+```
+...and enter the password.
