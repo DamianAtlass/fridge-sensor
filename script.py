@@ -57,6 +57,7 @@ def main():
     threshold = get_distace() + 1
     print("Threshold: ", threshold)
 
+    door_possibly_open_counter = 0
 
     while True:
         t_start = time()
@@ -66,12 +67,14 @@ def main():
         dist = get_distace()
         print(f"\rDist: {str(round(dist, 1)).ljust(6)}cm", end="")
 
-        if door_open:= threshold < dist:
+        if door_possibly_open:= threshold < dist:
             buzzer_on()
+            door_possibly_open_counter += 1
         else:
             buzzer_off()
+            door_possibly_open_counter = 0
 
-        print(", Door","  open" if door_open else "closed", end="")
+        print(", Door","  open" if door_possibly_open else "closed", end="")
         print(", Buzzer","on" if buzzer.is_active else "off", "(mute)" if SILENCE_BUZZER else "", end="")
         t_end = time()
         print(", iteration time: ", round(t_end - t_start, 2),"s", end="")
