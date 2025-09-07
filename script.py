@@ -4,7 +4,7 @@ from typing import Callable, Any
 import numpy as np
 import spidev
 from time import sleep, time
-from gpiozero import Buzzer
+from gpiozero import Buzzer, LED
 
 def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
     def wrapper(*args, **kwargs) -> None:
@@ -41,6 +41,13 @@ def main():
 
     #setup buzzer
     buzzer = Buzzer(13)
+    buzzer_on = silencer(buzzer.on, silence_buzzer)
+    buzzer_off = silencer(buzzer.off, silence_buzzer)
+    beep = beeper(on=buzzer_on, off=buzzer_off)
+
+    #setup led
+    led = LED(16)
+    blink = beeper(on=led.on, off=led.off)
 
     #setup sensor
     spi = spidev.SpiDev()
@@ -67,12 +74,7 @@ def main():
         return arr.mean()
 
     print(f"Start script{' silently' if silence_buzzer else ''}...")
-
-
-    buzzer_on = silencer(buzzer.on, silence_buzzer)
-    buzzer_off= silencer(buzzer.off, silence_buzzer)
-
-    beep = beeper(on=buzzer_on, off=buzzer_off)
+    blink(t=0.1)
 
     # calibrate and compensate measuring for errors
     offset = 1 if offset is None else offset
@@ -83,9 +85,11 @@ def main():
     noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy"]
 
     counter_door_possibly_open = 0
-
+    time_blinker = time()
     while True:
         t_start = time()
+        sleep(0.1)
+
         # clear line
         print(" " * 60, "\r", end="")
 
@@ -115,8 +119,10 @@ def main():
         elif counter_door_possibly_open > time_windows[2]:
             beep()
 
-        sleep(0.1)
-
+        # status blink
+        if time() - time_blinker > 5:
+            time_blinker = time()
+            blink(t=0.1)
 if __name__ == "__main__":
     main()
 
