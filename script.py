@@ -13,14 +13,15 @@ def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
     return wrapper
 
 
-def beep(on, off, beeps:int=1, t:int=0.2):
-    for i in range(beeps):
-        on()
-        sleep(t)
-        off()
-        if i!=beeps-1:
+def beeper(on: Callable[..., Any], off: Callable[..., Any]) -> Callable[..., Any]:
+    def beeper_wrapper(beeps:int=1, t:int=0.2) -> None:
+        for i in range(beeps):
+            on()
             sleep(t)
-
+            off()
+            if i!=beeps-1:
+                sleep(t)
+    return beeper_wrapper
 
 def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
     time_windows.append(coutner)
@@ -71,6 +72,8 @@ def main():
     buzzer_on = silencer(buzzer.on, silence_buzzer)
     buzzer_off= silencer(buzzer.off, silence_buzzer)
 
+    beep = beeper(on=buzzer_on, off=buzzer_off)
+
     # calibrate and compensate measuring for errors
     offset = 1 if offset is None else offset
     threshold = get_distace() + offset
@@ -104,13 +107,13 @@ def main():
 
 
         if counter_door_possibly_open == time_windows[0]:
-            beep(buzzer_on, buzzer_off, 2)
+            beep(2)
 
         elif counter_door_possibly_open == time_windows[1]:
-            beep(buzzer_on, buzzer_off, 3)
+            beep(3)
 
         elif counter_door_possibly_open > time_windows[2]:
-            beep(buzzer_on, buzzer_off)
+            beep()
 
         sleep(0.1)
 
