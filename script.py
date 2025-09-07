@@ -31,7 +31,7 @@ def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
 
 
 def signal_handler(sig, frame):
-    print('\nProgramm terminated!')
+    print('\nProgram terminated!')
     sys.exit(0)
 
 
