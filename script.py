@@ -1,11 +1,11 @@
 ##!/usr/bin/python
 import sys
 from typing import Callable, Any
-import numpy as np
-import spidev
+from numpy import zeros
+from spidev import SpiDev
 from time import sleep, time
 from gpiozero import Buzzer, LED
-import signal
+from signal import signal, SIGINT
 
 def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
     def wrapper(*args, **kwargs) -> None:
@@ -37,7 +37,7 @@ def signal_handler(sig, frame):
 
 def main():
     # register signal handler
-    signal.signal(signal.SIGINT, signal_handler)
+    signal(SIGINT, signal_handler)
     # read runtime parameters
     silence_buzzer = "-s" in sys.argv
 
@@ -58,7 +58,7 @@ def main():
     blink = beeper(on=led.on, off=led.off)
 
     #setup sensor
-    spi = spidev.SpiDev()
+    spi = SpiDev()
     spi.open(0, 0)
     spi.max_speed_hz = 1000000
 
@@ -74,7 +74,7 @@ def main():
 
     def get_distace(n: int = 100, t: int = 0.01) -> float:
         i = 0
-        arr = np.zeros(n)
+        arr = zeros(n)
         while i < n:
             arr[i] = take_measurment()
             i += 1
