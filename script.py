@@ -6,15 +6,29 @@ import spidev
 from time import sleep, time
 from gpiozero import Buzzer
 
+def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
+    def wrapper(*args, **kwargs) -> None:
+        if not b:
+            func(*args, **kwargs)
+    return wrapper
+
+
+def beep(on, off, beeps:int=1, t:int=0.2):
+    for i in range(beeps):
+        on()
+        sleep(t)
+        off()
+        if i!=beeps-1:
+            sleep(t)
+
+
+def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
+    time_windows.append(coutner)
+    time_windows.sort()
+    return time_windows.index(coutner)
+
 
 def main():
-
-    def readChannel(channel):
-        #formula very inaccurate
-        val = spi.xfer2([1, (8 + channel) << 4, 0])
-        data = ((val[1] & 3) << 8) + val[2]
-        return data
-
     # read runtime parameters
     silence_buzzer = "-s" in sys.argv
 
@@ -24,7 +38,6 @@ def main():
     else:
         offset = 0.5
 
-
     #setup buzzer
     buzzer = Buzzer(13)
 
@@ -33,20 +46,17 @@ def main():
     spi.open(0, 0)
     spi.max_speed_hz = 1000000
 
-
-    def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
-        def wrapper(*args, **kwargs) -> None:
-            if not b:
-                func(*args, **kwargs)
-        return wrapper
-
+    def readChannel(channel):
+        # formula very inaccurate
+        val = spi.xfer2([1, (8 + channel) << 4, 0])
+        data = ((val[1] & 3) << 8) + val[2]
+        return data
 
     def take_measurment():
         v = (readChannel(0) / 1023.0) * 3.3
         return 16.2537 * v ** 4 - 129.893 * v ** 3 + 382.268 * v ** 2 - 512.611 * v + 301.439
 
-
-    def get_distace(n: int = 100, t:int = 0.01) -> float:
+    def get_distace(n: int = 100, t: int = 0.01) -> float:
         i = 0
         arr = np.zeros(n)
         while i < n:
@@ -54,21 +64,6 @@ def main():
             i += 1
             sleep(t)
         return arr.mean()
-
-
-    def beep(beeps:int=1, t:int=0.2):
-        for i in range(beeps):
-            buzzer_on()
-            sleep(t)
-            buzzer_off()
-            if i!=beeps-1:
-                sleep(t)
-
-    def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
-        time_windows.append(coutner)
-        time_windows.sort()
-        return time_windows.index(coutner)
-
 
     print(f"Start script{' silently' if silence_buzzer else ''}...")
 
@@ -109,13 +104,13 @@ def main():
 
 
         if counter_door_possibly_open == time_windows[0]:
-            beep(2)
+            beep(buzzer_on, buzzer_off, 2)
 
         elif counter_door_possibly_open == time_windows[1]:
-            beep(3)
+            beep(buzzer_on, buzzer_off, 3)
 
         elif counter_door_possibly_open > time_windows[2]:
-            beep()
+            beep(buzzer_on, buzzer_off)
 
         sleep(0.1)
 
