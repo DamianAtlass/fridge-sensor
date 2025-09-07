@@ -98,8 +98,8 @@ def main():
         t_start = time()
         sleep(0.1)
 
-        # clear line
-        print(" " * 60, "\r", end="")
+        # clear line ending
+        print(" " * 15, "\r", end="")
 
         dist = get_distace()
         print(f"\rDist: {str(round(dist, 1)).rjust(5)}cm", end="")
