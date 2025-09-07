@@ -5,6 +5,7 @@ import numpy as np
 import spidev
 from time import sleep, time
 from gpiozero import Buzzer, LED
+import signal
 
 def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
     def wrapper(*args, **kwargs) -> None:
@@ -29,7 +30,14 @@ def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
     return time_windows.index(coutner)
 
 
+def signal_handler(sig, frame):
+    print('\nProgramm terminated!')
+    sys.exit(0)
+
+
 def main():
+    # register signal handler
+    signal.signal(signal.SIGINT, signal_handler)
     # read runtime parameters
     silence_buzzer = "-s" in sys.argv
 
@@ -73,7 +81,7 @@ def main():
             sleep(t)
         return arr.mean()
 
-    print(f"Start script{' silently' if silence_buzzer else ''}...")
+    print(f"Start script{' silently' if silence_buzzer else ''}...Press Ctrl+C to exit.")
     blink(t=0.1)
 
     # calibrate and compensate measuring for errors
