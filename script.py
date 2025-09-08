@@ -133,7 +133,7 @@ def main():
     print("Threshold: ", round(threshold, 2), ", Offset:", offset)
 
     time_windows = [5, 10, 15, 20]
-    noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy"]
+    noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy", "very noisy - email was sent"]
 
     counter_door_possibly_open = 0
     time_blinker = time()

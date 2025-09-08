@@ -42,8 +42,8 @@ sudo apt update
 sudo apt install libopenblas-dev
 ```
 ### Setup email notifications
-If you do not wish notifications you can simply set the flag *-nomail* and skip this step. 
-Otherwise, fill you the *.env_template* and rename it to *.env*. Make sure that you set the appropriate setting in your email client of choice.
+If you do not wish to receive email notifications you can simply set the flag *-nomail* and skip this step. 
+Otherwise, fill the *.env_template* and rename it to *.env* . Make sure that you set the appropriate setting in your email client of choice.
 
 
 ### Run the script
@@ -53,7 +53,7 @@ python script.py
 Options: \
 -s : silent, deactivate buzzer \
 -o [float] : add (usually positive) offset to distance calculation (default: 0.5) \
--nomail : set if you do not wish email notifications or do not have the .env setup
+-nomail : set if you do not wish to receive email notifications or do not have the .env setup
 
 
 ## ssh into raspbery py:
