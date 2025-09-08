@@ -59,7 +59,10 @@ def main():
     msg_to = os.getenv("EMAIL_TO")
     password = os.getenv("EMAIL_APP_SPECIFIC_PW")
     host = os.getenv("EMAIL_HOST")
-    port = int(os.getenv("EMAIL_PORT"))
+    port = os.getenv("EMAIL_PORT")
+    port = int(port)
+
+    username = os.getenv("EMAIL_USER")
 
     if None in [msg_from, msg_to, password, host, port]:
         raise ValueError

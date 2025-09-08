@@ -47,15 +47,17 @@ def send_email_handler():
     msg_to = os.getenv("EMAIL_TO")
     password = os.getenv("EMAIL_APP_SPECIFIC_PW")
     host = os.getenv("EMAIL_HOST")
-    port = int(os.getenv("EMAIL_PORT"))
+    port = os.getenv("EMAIL_PORT")
 
     try:
         if None in [msg_from, msg_to, password, host, port]:
-            raise ValueError("Some environment variables are not set.")
+            raise ValueError("\nEnvironment variables for sending email notifications are not set.")
     except ValueError as e:
         print(e)
         print("Cannot send email.")
         return None
+
+    port = int(port)
 
     send_email(host=host,
                port=port,
@@ -66,7 +68,7 @@ def send_email_handler():
                msg_text=msg_text,
                msg_subject=msg_subject
                )
-    print("Sent email.")
+    print(" Sent email.")
 
     return None
 
@@ -133,7 +135,7 @@ def main():
     print("Threshold: ", round(threshold, 2), ", Offset:", offset)
 
     time_windows = [5, 10, 15, 20]
-    noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", "very noisy - email was sent"]
+    noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", f"very noisy"]
 
     counter_door_possibly_open = 0
     time_blinker = time()
@@ -170,7 +172,7 @@ def main():
         elif counter_door_possibly_open > time_windows[2]:
             beep()
 
-        elif send_notification and counter_door_possibly_open > time_windows[3]:
+        if send_notification and counter_door_possibly_open == time_windows[3]:
             send_email_handler()
 
         # status blink
