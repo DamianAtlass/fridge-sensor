@@ -6,6 +6,10 @@ from spidev import SpiDev
 from time import sleep, time
 from gpiozero import Buzzer, LED
 from signal import signal, SIGINT
+from send_mail import send_email
+import os
+from dotenv import load_dotenv
+
 
 def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
     def wrapper(*args, **kwargs) -> None:
@@ -34,8 +38,42 @@ def signal_handler(sig, frame):
     print('\nProgram terminated!')
     sys.exit(0)
 
+def send_email_handler():
+
+    msg_subject = "Fridge door is open!"
+    msg_text = "Your left your fridge door open for a long time.\n"
+
+    msg_from = os.getenv("EMAIL_FROM")
+    msg_to = os.getenv("EMAIL_TO")
+    password = os.getenv("EMAIL_APP_SPECIFIC_PW")
+    host = os.getenv("EMAIL_HOST")
+    port = int(os.getenv("EMAIL_PORT"))
+
+    try:
+        if None in [msg_from, msg_to, password, host, port]:
+            raise ValueError("Some environment variables are not set.")
+    except ValueError as e:
+        print(e)
+        print("Cannot send email.")
+        return None
+
+    send_email(host=host,
+               port=port,
+               starttls=True,
+               msg_from=msg_from,
+               msg_to=msg_to,
+               password=password,
+               msg_text=msg_text,
+               msg_subject=msg_subject
+               )
+    print("Sent email.")
+
+    return None
+
 
 def main():
+    load_dotenv()
+
     # register signal handler
     signal(SIGINT, signal_handler)
     # read runtime parameters
@@ -46,6 +84,11 @@ def main():
         offset = float(sys.argv[n])
     else:
         offset = 0.5
+
+    if "-nomail" in sys.argv:
+        send_notification = False
+    else:
+        send_notification = True
 
     #setup buzzer
     buzzer = Buzzer(13)
@@ -89,7 +132,7 @@ def main():
     threshold = get_distace() + offset
     print("Threshold: ", round(threshold, 2), ", Offset:", offset)
 
-    time_windows = [5, 10, 15]
+    time_windows = [5, 10, 15, 20]
     noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy"]
 
     counter_door_possibly_open = 0
@@ -126,6 +169,9 @@ def main():
 
         elif counter_door_possibly_open > time_windows[2]:
             beep()
+
+        elif send_notification and counter_door_possibly_open > time_windows[3]:
+            send_email_handler()
 
         # status blink
         if time() - time_blinker > 5:
