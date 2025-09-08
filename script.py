@@ -133,7 +133,7 @@ def main():
     print("Threshold: ", round(threshold, 2), ", Offset:", offset)
 
     time_windows = [5, 10, 15, 20]
-    noise = ["no noise", "slightly noisy", "slightly noisy", "very noisy", "very noisy - email was sent"]
+    noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", "very noisy - email was sent"]
 
     counter_door_possibly_open = 0
     time_blinker = time()
@@ -152,13 +152,13 @@ def main():
         else:
             counter_door_possibly_open = 0
 
-        alarmlevel = evaluate_counter(counter_door_possibly_open, time_windows.copy())
+        alarm_level = evaluate_counter(counter_door_possibly_open, time_windows.copy())
 
         print(", Door","!open!" if door_possibly_open else "closed", end="")
         t_end = time()
-        print(", iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
-        print(", counter: ", str(counter_door_possibly_open).ljust(2), end="")
-        print(f", Alarmlevel on {alarmlevel}/{len(time_windows)} ({noise[alarmlevel]})" , end="")
+        print(", Iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
+        print(", Counter: ", str(counter_door_possibly_open).ljust(2), end="")
+        print(f", Alarm level on {alarm_level}/{len(time_windows)} ({noise_level[alarm_level]})" , end="")
 
 
         if counter_door_possibly_open == time_windows[0]:
