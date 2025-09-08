@@ -126,28 +126,38 @@ def main():
             sleep(t)
         return arr.mean()
 
-    print(f"Start script{' silently' if silence_buzzer else ''}...Press Ctrl+C to exit.")
+    print(f"Start script...Press Ctrl+C to exit.")
     blink(t=0.1)
 
     # calibrate and compensate measuring for errors
     offset = 1 if offset is None else offset
     threshold = get_distace() + offset
-    print("Threshold: ", round(threshold, 2), ", Offset:", offset)
+    print(f"Threshold: {round(threshold, 2)}, Offset: {offset}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
 
     time_windows = [5, 10, 15, 20]
     noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", f"very noisy"]
 
     counter_door_possibly_open = 0
     time_blinker = time()
+
+    rotating_symbols = list("◴◷◶◵")
+    i = 0
     while True:
         t_start = time()
-        sleep(0.1)
+        sleep(0.1) # keep log visible for a short while
 
         # clear line ending
         print(" " * 15, "\r", end="")
 
+        # rotate some symbols to indicate the program running on the console
+        print(rotating_symbols[i % len(rotating_symbols)], end=" ")
+        if i == len(rotating_symbols)-1:
+            i = 0
+        else:
+            i += 1
+
         dist = get_distace()
-        print(f"\rDist: {str(round(dist, 1)).rjust(5)}cm", end="")
+        print(f"Dist: {str(round(dist, 1)).rjust(5)}cm", end="")
 
         if door_possibly_open:= threshold < dist:
             counter_door_possibly_open += 1
@@ -156,11 +166,11 @@ def main():
 
         alarm_level = evaluate_counter(counter_door_possibly_open, time_windows.copy())
 
-        print(", Door","!open!" if door_possibly_open else "closed", end="")
+        print(", Door:","!open!" if door_possibly_open else "closed", end="")
         t_end = time()
         print(", Iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
         print(", Counter: ", str(counter_door_possibly_open).ljust(2), end="")
-        print(f", Alarm level on {alarm_level}/{len(time_windows)} ({noise_level[alarm_level]})" , end="")
+        print(f", Alarm level: {alarm_level}/{len(time_windows)} ({noise_level[alarm_level]})" , end="")
 
 
         if counter_door_possibly_open == time_windows[0]:
