@@ -48,7 +48,7 @@ Otherwise, fill the *.env_template* and rename it to *.env* . Make sure that you
 
 ### Run the script
 ```bash
-python script.py
+python main.py
 ```
 Options: \
 -s : silent, deactivate buzzer \
