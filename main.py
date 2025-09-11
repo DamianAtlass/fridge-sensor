@@ -98,6 +98,9 @@ def main():
     buzzer_off = silencer(buzzer.off, silence_buzzer)
     beep = beeper(on=buzzer_on, off=buzzer_off)
 
+    #signal running script
+    beep(1)
+
     #setup led
     led = LED(16)
     blink = beeper(on=led.on, off=led.off)
@@ -134,7 +137,7 @@ def main():
     threshold = get_distace() + offset
     print(f"Threshold: {round(threshold, 2)}, Offset: {offset}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
 
-    time_windows = [5, 10, 15, 20]
+    time_windows = [15, 30, 60, 120]
     noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", f"very noisy"]
 
     counter_door_possibly_open = 0
