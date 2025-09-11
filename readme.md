@@ -77,7 +77,7 @@ It should now automatically start on system boot.
 You might want to stop it whne your about to change something or debug. To do so, find the process by e.i looking for 
 the script path and remember the process id (PID):
 ```bash
-ps -e
+ps -ef
 ```
 
 Kill the process:

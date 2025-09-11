@@ -141,6 +141,7 @@ def main():
     noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", f"very noisy"]
 
     counter_door_possibly_open = 0
+    counter_door_a_little_open = 0
     time_blinker = time()
 
     rotating_symbols = list("◴◷◶◵")
@@ -162,14 +163,20 @@ def main():
         dist = get_distace()
         print(f"Dist: {str(round(dist, 1)).rjust(5)}cm", end="")
 
-        if door_possibly_open:= threshold < dist:
+        if door_possibly_open:= dist > threshold:
             counter_door_possibly_open += 1
         else:
             counter_door_possibly_open = 0
+            counter_door_a_little_open = 0
+
+        if door_a_little_open:= door_possibly_open and dist < threshold + 12:
+            counter_door_a_little_open += 1
 
         alarm_level = evaluate_counter(counter_door_possibly_open, time_windows.copy())
 
-        print(", Door:","!open!" if door_possibly_open else "closed", end="")
+        door_status = "a bit open" if door_a_little_open else "open" if door_possibly_open else "closed"
+
+        print(", Door:",door_status, end="")
         t_end = time()
         print(", Iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
         print(", Counter: ", str(counter_door_possibly_open).ljust(2), end="")
@@ -182,7 +189,7 @@ def main():
         elif counter_door_possibly_open == time_windows[1]:
             beep(3)
 
-        elif counter_door_possibly_open > time_windows[2]:
+        if counter_door_possibly_open > time_windows[2] or counter_door_a_little_open > 3:
             beep()
 
         if send_notification and counter_door_possibly_open == time_windows[3]:
