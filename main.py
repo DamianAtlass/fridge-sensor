@@ -87,6 +87,14 @@ def main():
     else:
         offset = 0.5
 
+    if "-b" in sys.argv:
+        n = sys.argv.index("-b") + 1
+        # threshold_2 is used to determine if the door is almost closed, but not completely, indicating
+        # unintuitive behaviour and more aggressive beeping
+        threshold_2 = float(sys.argv[n])
+    else:
+        threshold_2 = 12
+
     if "-nomail" in sys.argv:
         send_notification = False
     else:
@@ -135,7 +143,7 @@ def main():
     # calibrate and compensate measuring for errors
     offset = 1 if offset is None else offset
     threshold = get_distace() + offset
-    print(f"Threshold: {round(threshold, 2)}, Offset: {offset}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
+    print(f"Threshold: {round(threshold, 2)}, Offset: {offset}, Threshold2: {round(threshold_2, 2)}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
 
     time_windows = [15, 30, 60, 120]
     noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", f"very noisy"]
@@ -161,7 +169,7 @@ def main():
             i += 1
 
         dist = get_distace()
-        print(f"Dist: {str(round(dist, 1)).rjust(5)}cm", end="")
+        print(f"Dist: {str(round(dist, 2)).rjust(5)}cm", end="")
 
         if door_possibly_open:= dist > threshold:
             counter_door_possibly_open += 1
@@ -169,9 +177,11 @@ def main():
             counter_door_possibly_open = 0
             counter_door_a_little_open = 0
 
-        if door_a_little_open:= door_possibly_open and dist < threshold + 12:
-            counter_door_a_little_open += 1
-
+        if door_a_little_open:= door_possibly_open:
+            if dist < threshold + threshold_2:
+                counter_door_a_little_open += 1
+            else:
+                counter_door_a_little_open = 0
         alarm_level = evaluate_counter(counter_door_possibly_open, time_windows.copy())
 
         door_status = "a bit open" if door_a_little_open else "open" if door_possibly_open else "closed"
@@ -180,7 +190,8 @@ def main():
         t_end = time()
         print(", Iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
         print(", Counter: ", str(counter_door_possibly_open).ljust(2), end="")
-        print(f", Alarm level: {alarm_level}/{len(time_windows)} ({noise_level[alarm_level]})" , end="")
+        print(", Counter_2: ", str(counter_door_a_little_open).ljust(2), end="")
+        print(f", Alarm level: {alarm_level}/{len(time_windows)} ({'noisy' if counter_door_a_little_open > 3 else noise_level[alarm_level]})" , end="")
 
 
         if counter_door_possibly_open == time_windows[0]:
