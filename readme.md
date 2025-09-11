@@ -59,7 +59,7 @@ Options: \
 
 Create a run script and make it executable. Pass any optional parameters listed above if you want.
 ```bash
-echo "python $(pwd)/script.py" > run.sh
+echo "python $(pwd)/main.py" > run.sh
 chmod +x run.sh
 ```
 
