@@ -55,6 +55,23 @@ Options: \
 -o [float] : add (usually positive) offset to distance calculation (default: 0.5) \
 -nomail : set if you do not wish to receive email notifications or do not have the .env setup
 
+## Run the script automatically when the device starts
+
+Create a run script and make it executable. Pass any optional parameters listed above if you want.
+```bash
+echo "python $(pwd)/script.py" > run.sh
+chmod +x run.sh
+```
+
+Add a cronjob to run it on startup. Enter the cronjob interface with:
+```bash
+sudo crontab -e
+```
+
+Enter `@reboot bash [PATH]/foo.sh &`. Replace [PATH] with the path to run.sh's parent directory. Save and close the 
+file.
+
+It should now automatically start on system boot.
 
 ## ssh into raspbery py:
 on remote machine:
