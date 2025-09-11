@@ -73,6 +73,18 @@ file.
 
 It should now automatically start on system boot.
 
+### Stop the script when running as cronjob
+You might want to stop it whne your about to change something or debug. To do so, find the process by e.i looking for 
+the script path and remember the process id (PID):
+```bash
+ps -e
+```
+
+Kill the process:
+```bash
+sudo kill PID
+```
+
 ## ssh into raspbery py:
 on remote machine:
 ```bash
