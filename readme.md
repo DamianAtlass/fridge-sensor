@@ -59,9 +59,9 @@ aggressive beeping very early. Pass a high negative number (like -500) to disabl
 
 ## Run the script automatically when the device starts
 
-Create a run script and make it executable. Pass any optional parameters listed above if you want.
+The file _run.sh_ will be used to run the script properly. Be sure to make it executable and pass any optional 
+parameters listed above if you want.
 ```bash
-echo "python $(pwd)/main.py" > run.sh
 chmod +x run.sh
 ```
 
