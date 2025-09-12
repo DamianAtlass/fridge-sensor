@@ -3,4 +3,5 @@ gpiozero==2.0.1
 lgpio==0.2.2.0
 numpy==2.3.2
 pigpio==1.78
+python-dotenv==1.1.1
 -e git+https://github.com/doceme/py-spidev.git@cc2d813cd262a4843b004f577753f65f57a8609d#egg=spidev
