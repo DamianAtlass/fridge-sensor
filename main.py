@@ -72,6 +72,15 @@ def send_email_handler():
 
     return None
 
+class LogEntry:
+    def __init__(self, label : str, value : Any, unit : str = None) -> None :
+        self.label = label
+        self.value = value
+        self.unit = unit
+
+    def __str__(self) -> str:
+        return f"{self.label}: {self.value}{self.unit if self.unit else ''}"
+
 
 def main():
     load_dotenv()
@@ -155,11 +164,11 @@ def main():
     rotating_symbols = list("◴◷◶◵")
     i = 0
     while True:
+        log_list = []
         t_start = time()
         sleep(0.1) # keep log visible for a short while
 
-        # clear line ending
-        print(" " * 15, "\r", end="")
+
 
         # rotate some symbols to indicate the program running on the console
         print(rotating_symbols[i % len(rotating_symbols)], end=" ")
@@ -169,7 +178,6 @@ def main():
             i += 1
 
         dist = get_distace()
-        print(f"Dist: {str(round(dist, 2)).rjust(5)}cm", end="")
 
         if door_possibly_open:= dist > threshold:
             counter_door_possibly_open += 1
@@ -186,13 +194,21 @@ def main():
 
         door_status = "a bit open" if door_a_little_open else "open" if door_possibly_open else "closed"
 
-        print(", Door:",door_status, end="")
+        log_list.append(LogEntry("Door", door_status))
         t_end = time()
-        print(", Iteration time: ", str(round(t_end - t_start, 2)).ljust(2),"s", end="")
-        print(", Counter: ", str(counter_door_possibly_open).ljust(2), end="")
-        print(", Counter_2: ", str(counter_door_a_little_open).ljust(2), end="")
-        print(f", Alarm level: {alarm_level}/{len(time_windows)} ({'noisy' if counter_door_a_little_open > 3 else noise_level[alarm_level]})" , end="")
 
+        #log stuff
+        log_list.append(LogEntry("Dist", str(round(dist, 2)).rjust(5), "cm"))
+        log_list.append(LogEntry("Iteration time", str(round(t_end - t_start, 2)).ljust(2),"s"))
+        log_list.append(LogEntry("Counter", str(counter_door_possibly_open).ljust(2)))
+        log_list.append(LogEntry("Counter_2", str(counter_door_a_little_open).ljust(2)))
+        loudness_lable = 'noisy' if counter_door_a_little_open > 3 else noise_level[alarm_level]
+        log_list.append(LogEntry("Alarm level", f"{alarm_level}/{len(time_windows)}", " " + loudness_lable))
+
+        log_string = ", ".join([str(l) for l in log_list])
+        print(log_string, end="")
+        # clear line ending
+        print(" " * 15, "\r", end="")
 
         if counter_door_possibly_open == time_windows[0]:
             beep(2)
