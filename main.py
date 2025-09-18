@@ -10,6 +10,7 @@ from send_mail import send_email
 import os
 from dotenv import load_dotenv
 import csv
+from datetime import datetime
 
 
 def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
@@ -221,6 +222,7 @@ def main():
         print(" " * 15, "\r", end="")
 
         #log in file
+        log_list.insert(0, LogEntry("t", datetime.now()))
         write_to_logfile(logs=log_list, log_file = "logs.csv")
 
         if counter_door_possibly_open == time_windows[0]:
