@@ -9,6 +9,7 @@ from signal import signal, SIGINT
 from send_mail import send_email
 import os
 from dotenv import load_dotenv
+import csv
 
 
 def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
@@ -80,6 +81,15 @@ class LogEntry:
 
     def __str__(self) -> str:
         return f"{self.label}: {self.value}{self.unit if self.unit else ''}"
+
+def write_to_logfile(logs : list[LogEntry], log_file : str = "logfile.csv") -> None:
+    mode = 'w' if not os.path.isfile(log_file) else 'a'
+
+    with open(log_file, mode, newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        if mode == 'w':
+            writer.writerow([l.label for l in logs])
+        writer.writerows([[l.value for l in logs]]) # needs double list
 
 
 def main():
@@ -197,7 +207,7 @@ def main():
         log_list.append(LogEntry("Door", door_status))
         t_end = time()
 
-        #log stuff
+        #log on console
         log_list.append(LogEntry("Dist", str(round(dist, 2)).rjust(5), "cm"))
         log_list.append(LogEntry("Iteration time", str(round(t_end - t_start, 2)).ljust(2),"s"))
         log_list.append(LogEntry("Counter", str(counter_door_possibly_open).ljust(2)))
@@ -209,6 +219,9 @@ def main():
         print(log_string, end="")
         # clear line ending
         print(" " * 15, "\r", end="")
+
+        #log in file
+        write_to_logfile(logs=log_list, log_file = "logs.csv")
 
         if counter_door_possibly_open == time_windows[0]:
             beep(2)
