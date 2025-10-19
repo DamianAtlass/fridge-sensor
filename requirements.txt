@@ -6,4 +6,5 @@ pigpio==1.78
 python-dotenv==1.1.1
 ipykernel
 pandas
+matplotlib
 -e git+https://github.com/doceme/py-spidev.git@cc2d813cd262a4843b004f577753f65f57a8609d#egg=spidev
