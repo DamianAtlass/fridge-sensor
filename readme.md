@@ -48,7 +48,7 @@ Otherwise, fill the *.env_template* and rename it to *.env* . Make sure that you
 
 ### Run the script
 ```bash
-python main.py
+python src/main.py
 ```
 Options: \
 -s : silent, deactivate buzzer \
@@ -56,6 +56,9 @@ Options: \
 -nomail : set if you do not wish to receive email notifications or do not have the .env setup
 -j [float] : set threshold for detecting of the door is ajar. Doing so will respond with more 
 aggressive beeping very early. Pass a high negative number (like -500) to disable it (it is on by default) 
+
+Alternativly, just run the run.sh script.
+
 
 ## Run the script automatically when the device starts
 
