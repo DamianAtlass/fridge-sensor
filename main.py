@@ -190,20 +190,20 @@ def main():
 
         dist = get_distace()
 
-        if door_open:= dist > threshold:
+        if door_wide_open:= dist > threshold:
             counter_door_possibly_open += 1
         else:
             counter_door_possibly_open = 0
             counter_door_a_little_open = 0
 
-        if door_a_little_open:= door_open:
+        if door_a_little_open:= door_wide_open:
             if dist < threshold + threshold_2:
                 counter_door_a_little_open += 1
             else:
                 counter_door_a_little_open = 0
         alarm_level = evaluate_counter(counter_door_possibly_open, time_windows.copy())
 
-        door_status = "open" if door_open else "a bit open" if door_a_little_open else "closed"
+        door_status = "open" if door_wide_open else "a bit open" if door_a_little_open else "closed"
 
         log_list.append(LogEntry("Door", door_status))
         t_end = time()
