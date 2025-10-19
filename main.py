@@ -109,10 +109,10 @@ def main():
 
     if "-j" in sys.argv:
         n = sys.argv.index("-j") + 1
-        # threshold_ajar is used to determine if the door is almost closed, but not completely, indicating unintuitive behaviour and more aggressive beeping
-        threshold_ajar = float(sys.argv[n])
+        # offset_ajar is used to determine if the door is almost closed, but not completely, indicating unintuitive behaviour and more aggressive beeping
+        offset_ajar = float(sys.argv[n])
     else:
-        threshold_ajar = 12
+        offset_ajar = 12
 
     if "-nomail" in sys.argv:
         send_notification = False
@@ -162,7 +162,8 @@ def main():
     # calibrate and compensate measuring for errors
     offset = 1 if offset is None else offset
     threshold_door_open = get_distace() + offset
-    print(f"threshold_door_open: {round(threshold_door_open, 2)}, Offset: {offset}, Threshold2: {round(threshold_ajar, 2)}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
+    threshold_ajar = get_distace() + offset_ajar
+    print(f"threshold_door_open: {round(threshold_door_open, 2)}, threshold_ajar: {round(threshold_ajar, 2)}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
 
     time_windows = [15, 30, 60, 120]
     noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", f"very noisy"]
