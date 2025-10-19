@@ -223,7 +223,8 @@ def main():
 
         #log in file
         log_list.insert(0, LogEntry("t", datetime.now()))
-        write_to_logfile(logs=log_list, log_file = "logs.csv")
+        if door_a_little_open or door_wide_open:
+            write_to_logfile(logs=log_list, log_file = "logs.csv")
 
         if counter_door_possibly_open == time_windows[0]:
             beep(2)
