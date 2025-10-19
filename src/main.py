@@ -184,7 +184,7 @@ def main():
         # log in file
         log_list.insert(0, LogEntry("t", datetime.now()))
         if door_ajar or door_open:
-            write_to_logfile(logs=log_list, log_file ="../logs.csv")
+            write_to_logfile(logs=log_list, log_file ="logs.csv")
 
         # status blink
         if time() - time_blinker > 5:
