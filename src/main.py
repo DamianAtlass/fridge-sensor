@@ -1,87 +1,32 @@
 ##!/usr/bin/python
 import sys
-from typing import Callable, Any
 from numpy import zeros
 from spidev import SpiDev
 from time import sleep, time
 from gpiozero import Buzzer, LED
 from signal import signal, SIGINT
-from send_mail import send_email
 import os
 from dotenv import load_dotenv
 import csv
 from datetime import datetime
-
-
-def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
-    def wrapper(*args, **kwargs) -> None:
-        if not b:
-            func(*args, **kwargs)
-    return wrapper
-
-
-def beeper(on: Callable[..., Any], off: Callable[..., Any]) -> Callable[..., Any]:
-    def beeper_wrapper(beeps:int=1, t:int=0.2) -> None:
-        for i in range(beeps):
-            on()
-            sleep(t)
-            off()
-            if i!=beeps-1:
-                sleep(t)
-    return beeper_wrapper
+from utils import silencer, beeper, LogEntry, send_email_handler
 
 def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
     time_windows.append(coutner)
+def evaluate_counter(counter_door_open: int, time_windows:list[int], counter_door_ajar: int) -> int:
+    """ Return the alarm level and take into consideration if the door is ajar.
+    """
+    time_windows.append(counter_door_open)
     time_windows.sort()
-    return time_windows.index(coutner)
+    alarm_1 = time_windows.index(counter_door_open)
+    alarm_2 = 3 if counter_door_ajar > 3 else 0
+    return max(alarm_1, alarm_2)
 
 
 def signal_handler(sig, frame):
     print('\nProgram terminated!')
     sys.exit(0)
 
-def send_email_handler():
-
-    msg_subject = "Fridge door is open!"
-    msg_text = "Your left your fridge door open for a long time.\n"
-
-    msg_from = os.getenv("EMAIL_FROM")
-    msg_to = os.getenv("EMAIL_TO")
-    password = os.getenv("EMAIL_APP_SPECIFIC_PW")
-    host = os.getenv("EMAIL_HOST")
-    port = os.getenv("EMAIL_PORT")
-
-    try:
-        if None in [msg_from, msg_to, password, host, port]:
-            raise ValueError("\nEnvironment variables for sending email notifications are not set.")
-    except ValueError as e:
-        print(e)
-        print("Cannot send email.")
-        return None
-
-    port = int(port)
-
-    send_email(host=host,
-               port=port,
-               starttls=True,
-               msg_from=msg_from,
-               msg_to=msg_to,
-               password=password,
-               msg_text=msg_text,
-               msg_subject=msg_subject
-               )
-    print(" Sent email.")
-
-    return None
-
-class LogEntry:
-    def __init__(self, label : str, value : Any, unit : str = None) -> None :
-        self.label = label
-        self.value = value
-        self.unit = unit
-
-    def __str__(self) -> str:
-        return f"{self.label}: {self.value}{self.unit if self.unit else ''}"
 
 def write_to_logfile(logs : list[LogEntry], log_file : str = "logfile.csv") -> None:
     mode = 'w' if not os.path.isfile(log_file) else 'a'
@@ -200,30 +145,16 @@ def main():
             counter_door_ajar += 1
         else:
             counter_door_ajar = 0
-        alarm_level = evaluate_counter(counter_door_open, time_windows.copy())
+        alarm_level = evaluate_counter(counter_door_open, time_windows.copy(), counter_door_ajar)
 
         door_status = "ajar" if door_ajar else "open" if door_open else "closed"
 
         log_list.append(LogEntry("Door", door_status))
         t_end = time()
 
-        #log on console
-        log_list.append(LogEntry("Dist", str(round(dist, 2)).rjust(5), "cm"))
-        log_list.append(LogEntry("Iteration time", str(round(t_end - t_start, 2)).ljust(2),"s"))
-        log_list.append(LogEntry("Counter_open", str(counter_door_open).ljust(2)))
-        log_list.append(LogEntry("Counter_ajar", str(counter_door_ajar).ljust(2)))
-        loudness_lable = 'noisy' if counter_door_ajar > 3 else noise_level[alarm_level]
-        log_list.append(LogEntry("Alarm level", f"{alarm_level}/{len(time_windows)}", " " + loudness_lable))
 
-        log_string = ", ".join([str(l) for l in log_list])
-        print(log_string, end="")
-        # clear line ending
-        print(" " * 15, "\r", end="")
-
-        #log in file
-        log_list.insert(0, LogEntry("t", datetime.now()))
         if door_ajar or door_open:
-            write_to_logfile(logs=log_list, log_file = "logs.csv")
+            write_to_logfile(logs=log_list, log_file ="../logs.csv")
 
         if counter_door_open == time_windows[0]:
             beep(2)
@@ -236,6 +167,25 @@ def main():
 
         if send_notification and counter_door_open == time_windows[3]:
             send_email_handler()
+
+
+        ### logging etc
+        #log on console
+        log_list.append(LogEntry("Dist", str(round(dist, 2)).rjust(5), "cm"))
+        log_list.append(LogEntry("Iteration time", str(round(t_end - t_start, 2)).ljust(2), "s"))
+        log_list.append(LogEntry("Counter_open", str(counter_door_open).ljust(2)))
+        log_list.append(LogEntry("Counter_ajar", str(counter_door_ajar).ljust(2)))
+        loudness_lable = 'noisy' if counter_door_ajar > 3 else noise_level[alarm_level]
+        log_list.append(LogEntry("Alarm level", f"{alarm_level}/{len(time_windows)}", " " + loudness_lable))
+
+        log_string = ", ".join([str(l) for l in log_list])
+        print(log_string, end="")
+
+        # clear line ending
+        print(" " * 15, "\r", end="")
+
+        # log in file
+        log_list.insert(0, LogEntry("t", datetime.now()))
 
         # status blink
         if time() - time_blinker > 5:
