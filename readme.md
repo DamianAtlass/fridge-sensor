@@ -77,7 +77,7 @@ It should now automatically start on system boot.
 
 ### Stop the script when running as cronjob
 You might want to stop it whne your about to change something or debug. To do so, find the process by e.i looking for 
-the script path and remember the process id (PID):
+the script path and remember the process id (PID). Look for the main.py process:
 ```bash
 ps -ef
 ```
