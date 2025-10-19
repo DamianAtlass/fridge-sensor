@@ -11,8 +11,9 @@ import csv
 from datetime import datetime
 from utils import silencer, beeper, LogEntry, send_email_handler
 
-def evaluate_counter(coutner: int, time_windows:list[int]) -> int:
-    time_windows.append(coutner)
+BUZZER_PIN = 13
+LED_PIN = 16
+
 def evaluate_counter(counter_door_open: int, time_windows:list[int], counter_door_ajar: int) -> int:
     """ Return the alarm level and take into consideration if the door is ajar.
     """
@@ -65,7 +66,7 @@ def main():
         send_notification = True
 
     #setup buzzer
-    buzzer = Buzzer(13)
+    buzzer = Buzzer(BUZZER_PIN)
     buzzer_on = silencer(buzzer.on, silence_buzzer)
     buzzer_off = silencer(buzzer.off, silence_buzzer)
     beep = beeper(on=buzzer_on, off=buzzer_off)
@@ -74,7 +75,7 @@ def main():
     beep(1)
 
     #setup led
-    led = LED(16)
+    led = LED(LED_PIN)
     blink = beeper(on=led.on, off=led.off)
 
     #setup sensor
