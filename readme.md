@@ -54,7 +54,7 @@ Options: \
 -s : silent, deactivate buzzer \
 -o [float] : add (usually positive) offset to distance calculation (default: 0.5) \
 -nomail : set if you do not wish to receive email notifications or do not have the .env setup
--b [float] : set threshold for detecting of the door is only slightly open. Doing so will respond with more 
+-j [float] : set threshold for detecting of the door is ajar. Doing so will respond with more 
 aggressive beeping very early. Pass a high negative number (like -500) to disable it (it is on by default) 
 
 ## Run the script automatically when the device starts

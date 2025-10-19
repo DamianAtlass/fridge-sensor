@@ -107,13 +107,12 @@ def main():
     else:
         offset = 0.5
 
-    if "-b" in sys.argv:
-        n = sys.argv.index("-b") + 1
-        # threshold_2 is used to determine if the door is almost closed, but not completely, indicating
-        # unintuitive behaviour and more aggressive beeping
-        threshold_2 = float(sys.argv[n])
+    if "-j" in sys.argv:
+        n = sys.argv.index("-j") + 1
+        # threshold_ajar is used to determine if the door is almost closed, but not completely, indicating unintuitive behaviour and more aggressive beeping
+        threshold_ajar = float(sys.argv[n])
     else:
-        threshold_2 = 12
+        threshold_ajar = 12
 
     if "-nomail" in sys.argv:
         send_notification = False
@@ -162,14 +161,14 @@ def main():
 
     # calibrate and compensate measuring for errors
     offset = 1 if offset is None else offset
-    threshold = get_distace() + offset
-    print(f"Threshold: {round(threshold, 2)}, Offset: {offset}, Threshold2: {round(threshold_2, 2)}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
+    threshold_door_open = get_distace() + offset
+    print(f"threshold_door_open: {round(threshold_door_open, 2)}, Offset: {offset}, Threshold2: {round(threshold_ajar, 2)}, Buzzer silent: {silence_buzzer == True}, Send mails: {send_notification}")
 
     time_windows = [15, 30, 60, 120]
     noise_level = ["no noise", "slightly noisy", "slightly noisy", "very noisy", f"very noisy"]
 
-    counter_door_possibly_open = 0
-    counter_door_a_little_open = 0
+    counter_door_open = 0
+    counter_door_ajar = 0
     time_blinker = time()
 
     rotating_symbols = list("◴◷◶◵")
@@ -190,20 +189,19 @@ def main():
 
         dist = get_distace()
 
-        if door_wide_open:= dist > threshold:
-            counter_door_possibly_open += 1
+        if door_open:= dist > threshold_door_open:
+            counter_door_open += 1
         else:
-            counter_door_possibly_open = 0
-            counter_door_a_little_open = 0
+            counter_door_open = 0
+            counter_door_ajar = 0
 
-        if door_a_little_open:= door_wide_open:
-            if dist < threshold + threshold_2:
-                counter_door_a_little_open += 1
-            else:
-                counter_door_a_little_open = 0
-        alarm_level = evaluate_counter(counter_door_possibly_open, time_windows.copy())
+        if door_ajar:= door_open and dist < threshold_ajar:
+            counter_door_ajar += 1
+        else:
+            counter_door_ajar = 0
+        alarm_level = evaluate_counter(counter_door_open, time_windows.copy())
 
-        door_status = "open" if door_wide_open else "a bit open" if door_a_little_open else "closed"
+        door_status = "ajar" if door_ajar else "open" if door_open else "closed"
 
         log_list.append(LogEntry("Door", door_status))
         t_end = time()
@@ -211,9 +209,9 @@ def main():
         #log on console
         log_list.append(LogEntry("Dist", str(round(dist, 2)).rjust(5), "cm"))
         log_list.append(LogEntry("Iteration time", str(round(t_end - t_start, 2)).ljust(2),"s"))
-        log_list.append(LogEntry("Counter", str(counter_door_possibly_open).ljust(2)))
-        log_list.append(LogEntry("Counter_2", str(counter_door_a_little_open).ljust(2)))
-        loudness_lable = 'noisy' if counter_door_a_little_open > 3 else noise_level[alarm_level]
+        log_list.append(LogEntry("Counter_open", str(counter_door_open).ljust(2)))
+        log_list.append(LogEntry("Counter_ajar", str(counter_door_ajar).ljust(2)))
+        loudness_lable = 'noisy' if counter_door_ajar > 3 else noise_level[alarm_level]
         log_list.append(LogEntry("Alarm level", f"{alarm_level}/{len(time_windows)}", " " + loudness_lable))
 
         log_string = ", ".join([str(l) for l in log_list])
@@ -223,19 +221,19 @@ def main():
 
         #log in file
         log_list.insert(0, LogEntry("t", datetime.now()))
-        if door_a_little_open or door_wide_open:
+        if door_ajar or door_open:
             write_to_logfile(logs=log_list, log_file = "logs.csv")
 
-        if counter_door_possibly_open == time_windows[0]:
+        if counter_door_open == time_windows[0]:
             beep(2)
 
-        elif counter_door_possibly_open == time_windows[1]:
+        elif counter_door_open == time_windows[1]:
             beep(3)
 
-        if counter_door_possibly_open > time_windows[2] or counter_door_a_little_open > 3:
+        if counter_door_open > time_windows[2] or counter_door_ajar > 3:
             beep()
 
-        if send_notification and counter_door_possibly_open == time_windows[3]:
+        if send_notification and counter_door_open == time_windows[3]:
             send_email_handler()
 
         # status blink
