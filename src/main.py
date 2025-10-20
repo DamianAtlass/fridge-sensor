@@ -117,6 +117,7 @@ def main():
     counter_door_open = 0
     counter_door_ajar = 0
     time_blinker = time()
+    log_delay = True
 
     rotating_symbols = list("◴◷◶◵")
     i = 0
@@ -184,7 +185,12 @@ def main():
         # log in file
         log_list.insert(0, LogEntry("t", datetime.now()))
         if door_ajar or door_open:
+            log_delay = True
             write_to_logfile(logs=log_list, log_file ="logs.csv")
+        else:
+            if log_delay:
+                log_delay = False
+                write_to_logfile(logs=log_list, log_file="logs.csv")
 
         # status blink
         if time() - time_blinker > 5:
