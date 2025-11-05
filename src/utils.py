@@ -7,9 +7,8 @@ from send_mail import send_email
 
 def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
     """
-
     :param func: buzzer function
-    :param b: bool indicating if funcis supposed to be executed
+    :param b: bool indicating if func is supposed to be executed
     :return: wrapper that only executes func if b is False
     """
     def wrapper(*args, **kwargs) -> None:
@@ -20,17 +19,17 @@ def silencer(func: Callable[..., Any], b: bool) -> Callable[..., Any]:
 
 def beeper(on: Callable[..., Any], off: Callable[..., Any]) -> Callable[..., Any]:
     """
-
     :param on: a function activating something
-    :param off: a function deactivatinga something
+    :param off: a function deactivating something
     :return: a function toggling something
     """
-    def beeper_wrapper(beeps:int=1, t:int=0.2) -> None:
-        for i in range(beeps):
+    def beeper_wrapper(number_of_activations:int=1, t:int=0.2) -> None:
+        for i in range(number_of_activations):
             on()
             sleep(t)
             off()
-            if i!=beeps-1:
+
+            if i!=number_of_activations-1:
                 sleep(t)
     return beeper_wrapper
 
