@@ -3,8 +3,9 @@
 ## Instructions
 
 ### General
-This is an attempt of developing a sensor for a fridge which detects if the door has been left open for some time using 
-standard electronics components and some python programming.  
+This personal project was a successful attempt at developing a device for a fridge which detects meant to detect an 
+open door and take countermeasures in the form of noise alerts and email notifications using 
+standard electronics components and python programming. There is  also a script that evaluates the logged data. 
 
 This is expected to run on a Raspberry Pi Zero 2 w with Raspberry Pi OS installed. 
 Follow _mostly_ this [guide](https://tutorials-raspberrypi.de/infrarot-abstandsmessung-mit-dem-raspberry-pi-sharp-gp2y0a02yk0f/) for general instructions. A buzzer and an LED were added as well.
