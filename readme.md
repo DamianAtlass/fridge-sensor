@@ -3,9 +3,9 @@
 ## Instructions
 
 ### General
-This personal project was a successful attempt at developing a device for a fridge which detects meant to detect an 
-open door and take countermeasures in the form of noise alerts and email notifications using 
-standard electronics components and python programming. There is  also a script that evaluates the logged data. 
+This personal project was a successful attempt at developing a device meant to detect an 
+open door (specifically a fridge door) and take countermeasures in the form of noise alerts and email notifications 
+using standard electronics components and python programming. There is  also a script that evaluates the logged data. 
 
 This is expected to run on a Raspberry Pi Zero 2 w with Raspberry Pi OS installed. 
 Follow _mostly_ this [guide](https://tutorials-raspberrypi.de/infrarot-abstandsmessung-mit-dem-raspberry-pi-sharp-gp2y0a02yk0f/) for general instructions. A buzzer and an LED were added as well.
