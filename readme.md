@@ -110,3 +110,7 @@ On windows use
  ssh Pi_user@Pi_ip
 ```
 ...and enter the password.
+
+## Images
+
+![image of box](/images/image1.png)
