@@ -111,6 +111,12 @@ On windows use
 ```
 ...and enter the password.
 
+## Copy logs for plotting using scp
+```bash
+scp Pi_user@Pi_ip:path_to_repository/logs.csv logs.csv
+```
+...and enter the password.
+
 ## Images
 
 ![image of box](/images/image1.png)
