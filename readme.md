@@ -85,8 +85,7 @@ the script path and remember the process id (PID). Look for the main.py process:
 ```bash
 ps -ef | grep "python src/main.py"
 ```
-
-Kill the process:
+PID is the first number from the left. Kill the process:
 ```bash
 sudo kill PID
 ```
@@ -106,7 +105,7 @@ On remote (linux) machine:
 sshpass -p Pi_user_pw ssh Pi_user@Pi_ip
 ```
 
-On windows use
+Or
 ```bash
  ssh Pi_user@Pi_ip
 ```
