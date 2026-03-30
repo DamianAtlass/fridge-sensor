@@ -51,11 +51,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', help="deactivate buzzer", action="store_true")
 
-    parser.add_argument('-o', default=0.5, help="add (usually positive) an offset to the distance calculation")
-    parser.add_argument('-j', default=17, help="set threshold for detecting of the door is ajar. Doing so will respond with more \
-        aggressive beeping very early. Pass a high negative number (like -500) to disable it (it is on by default) ")
+    parser.add_argument('-o', default=1, help="Specify how much the door needs to be opened to be detected as such.\
+        Helps to counter fluctuating measurements.")
+    parser.add_argument('-j', default=17, help="Set threshold for detecting of the door is ajar. Doing so will respond with more \
+        aggressive beeping very early. Pass a high negative number (like -500) to disable it.")
 
-    parser.add_argument('-nomail', help="dont send email reminder", action="store_true")
+    parser.add_argument('-nomail', help="Dont send email reminder.", action="store_true")
 
     args = parser.parse_args()
     silence_buzzer = args.s
@@ -94,7 +95,6 @@ def main():
     blink_led(t=0.1)
 
     # calibrate and compensate measuring for errors
-    offset = 1 if offset is None else offset
     curr_dist = get_distace()
     threshold_door_open = curr_dist + offset
     threshold_ajar = curr_dist + offset_ajar

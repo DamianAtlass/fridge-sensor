@@ -53,10 +53,10 @@ python src/main.py
 ```
 Options: \
 -s : silent, deactivate buzzer \
--o [float] : add (usually positive) an offset to the distance calculation (default: 0.5) \
+-o [float] : Specify how much the door needs to be opened to be detected as such.\
+        Helps to counter fluctuating measurements. \
 -nomail : set if you do not wish to receive email notifications or do not have the .env setup \
--j [float] : set threshold for detecting of the door is ajar. Doing so will respond with more 
-aggressive beeping very early. Pass a high negative number (like -500) to disable it (it is on by default) 
+-j [float] : Set threshold for detecting of the door is ajar. Doing so will respond with more aggressive beeping very early. Pass a high negative number (like -500) to disable it. 
 
 Alternativly, just run the run.sh script.
 
