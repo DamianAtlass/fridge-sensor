@@ -53,8 +53,8 @@ python src/main.py
 ```
 Options: \
 -s : silent, deactivate buzzer \
--o [float] : add (usually positive) offset to distance calculation (default: 0.5) \
--nomail : set if you do not wish to receive email notifications or do not have the .env setup
+-o [float] : add (usually positive) an offset to the distance calculation (default: 0.5) \
+-nomail : set if you do not wish to receive email notifications or do not have the .env setup \
 -j [float] : set threshold for detecting of the door is ajar. Doing so will respond with more 
 aggressive beeping very early. Pass a high negative number (like -500) to disable it (it is on by default) 
 
@@ -83,7 +83,7 @@ It should now automatically start on system boot.
 You might want to stop it whne your about to change something or debug. To do so, find the process by e.i looking for 
 the script path and remember the process id (PID). Look for the main.py process:
 ```bash
-ps -ef
+ps -ef | grep "python src/main.py"
 ```
 
 Kill the process:
@@ -103,7 +103,7 @@ sudo apt install ssh
 ```
 On remote (linux) machine:
 ```bash
-shpass -p Pi_user_pw ssh Pi_user@Pi_ip
+sshpass -p Pi_user_pw ssh Pi_user@Pi_ip
 ```
 
 On windows use
