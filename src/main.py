@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import csv
 from datetime import datetime
 from utils import silencer, beeper, LogEntry, send_email_handler
+import argparse
 
 BUZZER_PIN = 13
 LED_PIN = 16
@@ -44,26 +45,22 @@ def main():
 
     # register signal handler
     signal(SIGINT, signal_handler)
+
     # read runtime parameters
-    silence_buzzer = "-s" in sys.argv
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', help="deactivate buzzer", action="store_true")
 
-    if "-o" in sys.argv:
-        n = sys.argv.index("-o")+1
-        offset = float(sys.argv[n])
-    else:
-        offset = 0.5
+    parser.add_argument('-o', default=0.5, help="add (usually positive) an offset to the distance calculation")
+    parser.add_argument('-j', default=17, help="set threshold for detecting of the door is ajar. Doing so will respond with more \
+        aggressive beeping very early. Pass a high negative number (like -500) to disable it (it is on by default) ")
 
-    if "-j" in sys.argv:
-        n = sys.argv.index("-j") + 1
-        # offset_ajar is used to determine if the door is almost closed, but not completely, indicating unintuitive behaviour and more aggressive beeping
-        offset_ajar = float(sys.argv[n])
-    else:
-        offset_ajar = 12
+    parser.add_argument('-nomail', help="dont send email reminder", action="store_true")
 
-    if "-nomail" in sys.argv:
-        send_notification = False
-    else:
-        send_notification = True
+    args = parser.parse_args()
+    silence_buzzer = args.s
+    offset = float(args.o)
+    offset_ajar = float(args.j)
+    send_notification = not args.nomail
 
     #setup buzzer
     buzzer = Buzzer(BUZZER_PIN)
@@ -199,6 +196,7 @@ def main():
         if time() - time_blinker > 5:
             time_blinker = time()
             blink_led(t=0.1)
+
 if __name__ == "__main__":
     main()
 
